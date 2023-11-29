@@ -21,9 +21,29 @@ def add():
   cur = mysql.connection.cursor() #create a connection to the SQL instance
   s='''INSERT INTO students(studentName, email) VALUES('{}','{}');'''.format(name,email) # kludge - use stored proc or params
   cur.execute(s)
-  mysql.connection.commit()
+  result = '{"Result":"Failure1"}'
+  try:
+    mysql.connection.commit();
+    result = '{"Result":"Success"}' 
+  except Exception as e:
+    result = '{"Result":"Failure2"}'
 
-  return '{"Result":"Success"}' # Really? maybe we should check!
+  return result
+
+@app.route("/delete") #Delete Student
+def delete():
+  id = request.args.get('studentid')
+  cur = mysql.connection.cursor() #create a connection to the SQL instance
+  s='''DELETE FROM students WHERE studentID = ('{}');'''.format(id) # kludge - use stored proc or params
+  cur.execute(s)
+  result = '{"Result":"Failure"}'
+  try:
+    mysql.connection.commit();
+    result = '{"Result":"Success"}' 
+  except Exception as e:
+    result = '{"Result":"Failure"}'
+
+  return result
   
 @app.route("/") #Default - Show Data
 def read(): # Name of the method
@@ -46,4 +66,6 @@ def read(): # Name of the method
   return ret #Return the data in a string format
 if __name__ == "__main__":
   app.run(host='0.0.0.0',port='8080') #Run the flask app at port 8080
+
+
 
